@@ -3,11 +3,6 @@ node_modules/
 .npm
 
 # Environment variables (IMPORTANT - never commit these)
-.env
-.env.local
-.env.development
-.env.production
-.env.test
 
 # Next.js build output
 frontend/.next/
@@ -61,3 +56,4 @@ coverage/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+config.bat
