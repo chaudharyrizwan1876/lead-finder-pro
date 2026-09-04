@@ -141,7 +141,12 @@ async function tryCommonPatterns(domain: string): Promise<string | null> {
   }
 }
 
-export async function findEmail(website: string): Promise<string | null> {
+export interface EmailResult {
+  email: string;
+  source: 'website' | 'guessed';
+}
+
+export async function findEmail(website: string): Promise<EmailResult | null> {
   let url = website;
   if (!url.startsWith('http')) {
     url = 'https://' + url;
@@ -155,16 +160,16 @@ export async function findEmail(website: string): Promise<string | null> {
   }
 
   let email = await findFromWebsitePages(url);
-  if (email) return email;
+  if (email) return { email, source: 'website' };
 
   email = await findFromPrivacyPage(url);
-  if (email) return email;
+  if (email) return { email, source: 'website' };
 
   email = await findFromSchemaData(url);
-  if (email) return email;
+  if (email) return { email, source: 'website' };
 
   email = await tryCommonPatterns(domain);
-  if (email) return email;
+  if (email) return { email, source: 'guessed' };
 
   return null;
 }

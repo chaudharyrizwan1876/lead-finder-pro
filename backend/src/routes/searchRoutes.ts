@@ -39,10 +39,10 @@ router.post('/leads', async (req: Request, res: Response) => {
       businesses.map(async (b) => {
         // Pehle website se try karo (4 jugar wala combo)
         if (!b.email && b.website) {
-          const foundEmail = await findEmail(b.website);
-          if (foundEmail) {
-            b.email = foundEmail;
-            b.emailSource = 'website';
+          const found = await findEmail(b.website);
+          if (found) {
+            b.email = found.email;
+            b.emailSource = found.source;
           }
         }
 
