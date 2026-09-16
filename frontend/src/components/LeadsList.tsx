@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Business } from '@/types';
+import { Business, LeadStatus } from '@/types';
 import LeadRow from './LeadRow';
 import FilterToolbar from './FilterToolbar';
 import { exportCSV } from '@/lib/api';
 
 interface LeadsListProps {
   businesses: Business[];
+  onStatusUpdate?: (id: number, status: LeadStatus, notes: string | null) => void;
 }
 
-export default function LeadsList({ businesses }: LeadsListProps) {
+export default function LeadsList({ businesses, onStatusUpdate }: LeadsListProps) {
   const [activeFilter, setActiveFilter] = useState('Sab');
   const [exporting, setExporting] = useState(false);
 
@@ -53,7 +54,7 @@ export default function LeadsList({ businesses }: LeadsListProps) {
       />
       <div className="border border-gray-200 rounded-xl overflow-hidden">
         {filtered.map((b, i) => (
-          <LeadRow key={`${b.name}-${i}`} business={b} />
+          <LeadRow key={b.id ?? `${b.name}-${i}`} business={b} onStatusUpdate={onStatusUpdate} />
         ))}
       </div>
     </div>

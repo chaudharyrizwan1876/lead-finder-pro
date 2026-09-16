@@ -14,6 +14,8 @@ export function generateCSV(businesses: Business[]): string {
     'Rating',
     'Reviews',
     'Source',
+    'Status',
+    'Notes',
   ];
 
   const rows = businesses.map((b) => [
@@ -29,6 +31,8 @@ export function generateCSV(businesses: Business[]): string {
     b.rating?.toString() || '',
     b.reviews?.toString() || '',
     b.source,
+    b.status || 'new',
+    b.notes || '',
   ]);
 
   const csvContent = [headers, ...rows]

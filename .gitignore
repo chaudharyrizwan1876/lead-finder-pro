@@ -1,15 +1,23 @@
 # Dependencies
 node_modules/
-.npm
+.npm/
 
 # Environment variables (IMPORTANT - never commit these)
+.env*
 !.env.example
+
 # Next.js build output
 frontend/.next/
 frontend/out/
+.next/
+out/
 
 # TypeScript build output
 backend/dist/
+*.tsbuildinfo
+
+# Local leads database
+backend/data/
 
 # Playwright browser binaries
 backend/node_modules/.cache/
@@ -37,10 +45,11 @@ Desktop.ini
 *.suo
 *.ntvs*
 *.njsproj
+*.njsproj.user
 *.sln
 
 # Debug
-.pids
+.pids/
 *.pid
 *.seed
 *.pid.lock
@@ -51,9 +60,11 @@ coverage/
 .nyc_output/
 
 # Yarn
-.yarn/cache
-.yarn/unplugged
+.yarn/cache/
+.yarn/unplugged/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Other
 config.bat
