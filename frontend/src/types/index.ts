@@ -13,7 +13,15 @@ export interface Business {
   lat: number | null;
   lon: number | null;
   source: 'openstreetmap' | 'googlemaps';
+  isNew?: boolean;
+  firstSeenAt?: string;
+  id?: number;
+  status?: LeadStatus;
+  notes?: string | null;
+  contactedAt?: string | null;
 }
+
+export type LeadStatus = 'new' | 'contacted' | 'replied' | 'converted' | 'not_interested';
 
 export interface SearchParams {
   businessType: string;
@@ -28,5 +36,6 @@ export interface SearchResponse {
   withEmail: number;
   withPhone: number;
   withoutWebsite: number;
+  newLeads: number;
   data: Business[];
 }

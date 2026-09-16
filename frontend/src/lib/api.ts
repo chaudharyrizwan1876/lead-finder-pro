@@ -1,4 +1,4 @@
-import { SearchParams, SearchResponse, Business } from '@/types';
+import { SearchParams, SearchResponse, Business, LeadStatus } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -14,6 +14,25 @@ export async function searchLeads(params: SearchParams): Promise<SearchResponse>
   }
 
   return response.json();
+}
+
+export async function updateLeadStatus(
+  id: number,
+  status: LeadStatus,
+  notes: string | null
+): Promise<Business> {
+  const response = await fetch(`${API_URL}/api/search/leads/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status, notes }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Status update fail ho gayi');
+  }
+
+  const json = await response.json();
+  return json.data;
 }
 
 export async function exportCSV(businesses: Business[]): Promise<void> {

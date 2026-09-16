@@ -5,8 +5,8 @@ import Image from 'next/image';
 import SearchForm from '@/components/SearchForm';
 import StatsCards from '@/components/StatsCards';
 import LeadsList from '@/components/LeadsList';
-import { searchLeads } from '@/lib/api';
-import { SearchParams, SearchResponse } from '@/types';
+import { searchLeads, updateLeadStatus } from '@/lib/api';
+import { SearchParams, SearchResponse, LeadStatus } from '@/types';
 
 export default function Home() {
   const [results, setResults] = useState<SearchResponse | null>(null);
@@ -23,6 +23,19 @@ export default function Home() {
       setError('Search fail ho gayi. Backend chal raha hai check karo.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (id: number, status: LeadStatus, notes: string | null) => {
+    try {
+      const updated = await updateLeadStatus(id, status, notes);
+      setResults((prev) =>
+        prev
+          ? { ...prev, data: prev.data.map((b) => (b.id === id ? { ...b, ...updated } : b)) }
+          : prev
+      );
+    } catch (err) {
+      alert('Status update fail ho gayi, dobara try karo');
     }
   };
 
@@ -57,7 +70,7 @@ export default function Home() {
       {!loading && results && (
         <>
           <StatsCards results={results} />
-          <LeadsList businesses={results.data} />
+          <LeadsList businesses={results.data} onStatusUpdate={handleStatusUpdate} />
         </>
       )}
 
