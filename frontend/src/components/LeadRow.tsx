@@ -91,6 +91,26 @@ export default function LeadRow({ business, onStatusUpdate }: LeadRowProps) {
             {business.emailSource === 'facebook' && (
               <i className="ti ti-brand-facebook text-blue-600 ml-0.5" />
             )}
+            {business.emailStatus && (
+              <span
+                className={`shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-semibold uppercase ${
+                  business.emailStatus === 'valid'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : business.emailStatus === 'risky'
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-rose-100 text-rose-700'
+                }`}
+                title={
+                  business.emailStatus === 'valid'
+                    ? 'Mailbox verified'
+                    : business.emailStatus === 'risky'
+                    ? 'Verify nahi ho saka (guessed ya SMTP blocked) — bhejne se pehle check karo'
+                    : 'Invalid — bounce hone ka chance zyada'
+                }
+              >
+                {business.emailStatus}
+              </span>
+            )}
           </span>
         ) : (
           <span className="text-[12px] text-gray-400 flex items-center gap-1">

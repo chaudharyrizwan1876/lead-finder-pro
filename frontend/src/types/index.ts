@@ -6,6 +6,7 @@ export interface Business {
   whatsapp: string | null;
   email: string | null;
   emailSource: 'website' | 'facebook' | 'guessed' | null;
+  emailStatus?: 'valid' | 'risky' | 'invalid' | null;
   website: string | null;
   facebookUrl: string | null;
   rating: number | null;

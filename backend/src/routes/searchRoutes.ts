@@ -3,6 +3,7 @@ import { searchOSM } from '../services/osmService';
 import { scrapeGoogleMaps } from '../services/scrapeService';
 import { findEmail, findEmailFromFacebook } from '../services/emailService';
 import { generateCSV } from '../services/csvService';
+import { verifyEmail } from '../services/emailVerifyService';
 import { upsertLeads, getAllLeads, updateLeadStatus, LeadStatus } from '../services/dbService';
 import { Business, SearchResponse } from '../types';
 
@@ -54,6 +55,10 @@ router.post('/leads', async (req: Request, res: Response) => {
             b.email = fbEmail;
             b.emailSource = 'facebook';
           }
+        }
+
+        if (b.email) {
+          b.emailStatus = await verifyEmail(b.email, b.emailSource);
         }
 
         return b;

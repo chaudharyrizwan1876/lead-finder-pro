@@ -20,6 +20,7 @@ db.exec(`
     whatsapp TEXT,
     email TEXT,
     email_source TEXT,
+    email_status TEXT,
     website TEXT,
     facebook_url TEXT,
     rating REAL,
@@ -40,6 +41,7 @@ for (const stmt of [
   "ALTER TABLE leads ADD COLUMN status TEXT NOT NULL DEFAULT 'new'",
   'ALTER TABLE leads ADD COLUMN notes TEXT',
   'ALTER TABLE leads ADD COLUMN contacted_at TEXT',
+  'ALTER TABLE leads ADD COLUMN email_status TEXT',
 ]) {
   try {
     db.exec(stmt);
@@ -76,6 +78,7 @@ function rowToBusiness(row: any): StoredBusiness {
     whatsapp: row.whatsapp,
     email: row.email,
     emailSource: row.email_source,
+    emailStatus: row.email_status,
     website: row.website,
     facebookUrl: row.facebook_url,
     rating: row.rating,
@@ -96,9 +99,9 @@ const findStmt = db.prepare('SELECT * FROM leads WHERE dedupe_key = ?');
 
 const insertStmt = db.prepare(`
   INSERT INTO leads
-    (dedupe_key, name, type, city, address, phone, whatsapp, email, email_source, website, facebook_url, rating, reviews, lat, lon, source, first_seen_at, last_seen_at)
+    (dedupe_key, name, type, city, address, phone, whatsapp, email, email_source, email_status, website, facebook_url, rating, reviews, lat, lon, source, first_seen_at, last_seen_at)
   VALUES
-    (@dedupeKey, @name, @type, @city, @address, @phone, @whatsapp, @email, @emailSource, @website, @facebookUrl, @rating, @reviews, @lat, @lon, @source, @firstSeenAt, @lastSeenAt)
+    (@dedupeKey, @name, @type, @city, @address, @phone, @whatsapp, @email, @emailSource, @emailStatus, @website, @facebookUrl, @rating, @reviews, @lat, @lon, @source, @firstSeenAt, @lastSeenAt)
 `);
 
 const updateStmt = db.prepare(`
@@ -108,6 +111,7 @@ const updateStmt = db.prepare(`
     whatsapp = COALESCE(@whatsapp, whatsapp),
     email = COALESCE(@email, email),
     email_source = COALESCE(@emailSource, email_source),
+    email_status = COALESCE(@emailStatus, email_status),
     website = COALESCE(@website, website),
     facebook_url = COALESCE(@facebookUrl, facebook_url),
     rating = COALESCE(@rating, rating),
@@ -134,6 +138,7 @@ export function upsertLeads(businesses: Business[], city: string): StoredBusines
         whatsapp: b.whatsapp,
         email: b.email,
         emailSource: b.emailSource,
+        emailStatus: b.emailStatus ?? null,
         website: b.website,
         facebookUrl: b.facebookUrl,
         rating: b.rating,
@@ -162,6 +167,7 @@ export function upsertLeads(businesses: Business[], city: string): StoredBusines
       whatsapp: b.whatsapp,
       email: b.email,
       emailSource: b.emailSource,
+      emailStatus: b.emailStatus ?? null,
       website: b.website,
       facebookUrl: b.facebookUrl,
       rating: b.rating,
