@@ -36,7 +36,7 @@ db.exec(`
   )
 `);
 
-// Purani DB files (status/notes columns se pehle banayi hui) ke liye migration
+// Purani DB files (status/notes/email_status columns se pehle banayi hui) ke liye migration
 for (const stmt of [
   "ALTER TABLE leads ADD COLUMN status TEXT NOT NULL DEFAULT 'new'",
   'ALTER TABLE leads ADD COLUMN notes TEXT',
