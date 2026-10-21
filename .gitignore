@@ -3,6 +3,7 @@ node_modules/
 .npm/
 
 # Environment variables (IMPORTANT - never commit these)
+.env*
 !.env.example
 
 # Next.js build output
