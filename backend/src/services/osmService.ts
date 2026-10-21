@@ -1,7 +1,13 @@
 import axios from 'axios';
 import { Business, SearchParams } from '../types';
 
-const OSM_API = 'https://overpass.kumi.systems/api/interpreter';
+// Public Overpass instance aksar 504 "server busy" ya timeout deta hai (testing mein
+// dekha gaya) — isliye ek se zyada mirror try karte hain, pehla jo kaam karde wahi use hota hai.
+const OSM_MIRRORS = [
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.openstreetmap.ru/api/interpreter',
+];
 const NOMINATIM_API = 'https://nominatim.openstreetmap.org/search';
 
 const businessTypeMap: Record<string, string> = {
@@ -98,20 +104,47 @@ export async function searchOSM(params: SearchParams): Promise<Business[]> {
 
     const query = `[out:json][timeout:${timeout}];(node["${key}"="${value}"](around:${radiusMeters},${coords.lat},${coords.lon});way["${key}"="${value}"](around:${radiusMeters},${coords.lat},${coords.lon}););out body ${limit};>;out skel qt;`;
 
-    const response = await axios({
-      method: 'post',
-      url: OSM_API,
-      data: 'data=' + encodeURIComponent(query),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      },
-      timeout: (timeout + 10) * 1000,
-    });
+    let elements: any[] = [];
+    let lastError: any = null;
 
-    const elements = response.data.elements || [];
+    for (const mirror of OSM_MIRRORS) {
+      try {
+        console.log(`Overpass mirror try kar raha hai: ${mirror}`);
+        const response = await axios({
+          method: 'post',
+          url: mirror,
+          data: 'data=' + encodeURIComponent(query),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+          timeout: (timeout + 10) * 1000,
+        });
+        elements = response.data.elements || [];
+        lastError = null;
+        break;
+      } catch (err: any) {
+        lastError = err;
+        const status = err.response?.status;
+        // Server busy (504/503) ya timeout ho to agla mirror try karo; baaki errors ke liye rukna fazool hai
+        if (err.code === 'ECONNABORTED' || status === 504 || status === 503) {
+          console.log(`Mirror fail ho gaya (${err.code || status}), agla try kar raha hai...`);
+          continue;
+        }
+        break;
+      }
+    }
+
+    if (lastError) {
+      if (lastError.code === 'ECONNABORTED') {
+        console.error('OSM Error: Saare mirrors timeout ho gaye, radius kam karke try karo');
+      } else {
+        console.error('OSM Error:', lastError.response?.status, lastError.response?.data || lastError.message);
+      }
+      return [];
+    }
 
     const businesses: Business[] = elements
       .filter((el: any) => el.tags && el.tags.name)
@@ -139,11 +172,7 @@ export async function searchOSM(params: SearchParams): Promise<Business[]> {
     console.log(`OSM se ${businesses.length} results mile (limit tha ${limit})`);
     return businesses;
   } catch (error: any) {
-    if (error.code === 'ECONNABORTED') {
-      console.error('OSM Error: Query timeout ho gaya, radius kam karke try karo');
-    } else {
-      console.error('OSM Error:', error.response?.status, error.response?.data || error.message);
-    }
+    console.error('OSM Error:', error.response?.status, error.response?.data || error.message);
     return [];
   }
 }
